@@ -1,12 +1,13 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { access } from "fs";
 import { ref } from "process";
 import { log } from "console";
 import { JsonWebTokenError as jwt } from "jsonwebtoken";
+import { findSourceMap } from "module";
 
 const registerUser = asyncHandler(async (req, res) => {
     const { fullname, email, username, password } = req.body;
@@ -275,23 +276,34 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar file is missing")
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
+    const user = await User.findById(req.user?._id)
 
-    if (!avatar.url) {
-        throw new ApiError(400, "Error while uploading on avatar")
+    if(!user){
+        throw new ApiError(400, "User not found")
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.user?._id,
-        {
-            $set: {
-                avatar: avatar.url
-            }
-        },
-        {},
-        { new: true }
-    ).select("-password")
+    const oldAvatarId = user.avatar?._id;
 
+    const newAvatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if(!newAvatar){
+        throw new ApiError(400, "Error while uploading the avatar")
+    }
+
+    user.avatar = {
+        url: newAvatar.url,
+        _id: newAvatar._id
+    }
+
+    await user.save()
+
+    if (oldAvatarId) {
+        await deleteFromCloudinary(oldAvatarId)
+    }
+
+    const UpdatedUser = await findById(req.user?._id)
+    .select("-password -refreshToken")
+    
     return res
     .status(200)
     .json(
