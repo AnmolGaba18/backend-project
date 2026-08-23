@@ -6,14 +6,14 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { access } from "fs";
 import { ref } from "process";
 import { log } from "console";
-import { JsonWebTokenError as jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { findSourceMap } from "module";
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { fullname, email, username, password } = req.body;
+    const { fullName, email, username, password } = req.body;
 
     if (
-        [fullname, email, username, password].some(
+        [fullName, email, username, password].some(
             (field) => field?.trim() === ""
         )
     ) {
@@ -54,7 +54,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.create({
-        fullname,
+        fullName,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
         email,
