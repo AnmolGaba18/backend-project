@@ -278,7 +278,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     const user = await User.findById(req.user?._id)
 
-    if(!user){
+    if (!user) {
         throw new ApiError(400, "User not found")
     }
 
@@ -286,7 +286,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     const newAvatar = await uploadOnCloudinary(avatarLocalPath)
 
-    if(!newAvatar){
+    if (!newAvatar) {
         throw new ApiError(400, "Error while uploading the avatar")
     }
 
@@ -302,16 +302,16 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     }
 
     const UpdatedUser = await findById(req.user?._id)
-    .select("-password -refreshToken")
-    
+        .select("-password -refreshToken")
+
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, user, "Avatar uploaded successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, user, "Avatar uploaded successfully")
+        )
 })
 
-const updateUserCoverImage = asyncHandler(async(req, res) => {
+const updateUserCoverImage = asyncHandler(async (req, res) => {
 
     const userCoverImagePath = req.file?.path
 
@@ -321,7 +321,7 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 
     const coverImage = await uploadOnCloudinary(userCoverImagePath)
 
-    if(!coverImage.url){
+    if (!coverImage.url) {
         throw new ApiError(400, "Error while uploading cover image")
     }
 
@@ -337,10 +337,10 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
     ).select("-password")
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, user, "Cover Image uploaded successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, user, "Cover Image uploaded successfully")
+        )
 })
 
 export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar };
